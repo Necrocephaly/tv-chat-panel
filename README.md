@@ -12,6 +12,19 @@ for as long as TradingView's chat servers keep answering.
 > working at any time, and TradingView may ask people not to use it. Use it at
 > your own risk.
 
+## Version 1.1 changes
+
+- **Select chat text:** drag across messages to highlight and copy the part you
+  want. Selecting a username does not insert an @mention; a normal click still
+  does.
+- **Short, wide panel:** open **⚙ Appearance → Panel size → Two messages** for
+  a panel about 440 × 180 pixels. **Regular** restores the original 340 × 460
+  size. You can still resize from the corner, and your chosen size is saved.
+  Longer messages, quotes and snapshots may take up more than one message's
+  worth of space.
+- **Username glow:** turn it on in **⚙ Appearance** and set **Glow intensity**
+  from 1 to 5. It is off by default; the setting is saved in your browser.
+
 ## What it does
 
 - Lists the public rooms and shows the conversation, newest at the bottom.
@@ -28,10 +41,8 @@ for as long as TradingView's chat servers keep answering.
   viewing; click to open it.
 - **⋮ menu** on each message: copy the text, or delete your own message.
 - **Jump to present** when you've scrolled back.
-- Select and copy text directly from the chat history. Clicking a name still
-  inserts an @mention when no text is selected.
-- **Appearance (⚙):** text size, font and colours; a short, wide panel preset
-  that shows roughly two messages; and optional username glow with intensity.
+- Select and copy text directly from the chat history.
+- **Appearance (⚙):** text size, font, colours, panel size and username glow.
 - Drag the title bar to move it, drag the corner to resize it. It remembers
   its place, size and room.
 
@@ -49,12 +60,22 @@ saved only in your browser.
    Tampermonkey, and turn on **Allow User Scripts**.
 3. Click the Tampermonkey icon, then **Create a new script…**, and delete the
    template text.
-4. Paste in the whole of `tv-chat-panel.user.js`, then press **Ctrl+S**.
+4. Paste in the whole of [tv-chat-panel.user.js](tv-chat-panel.user.js), then
+   press **Ctrl+S**.
 5. Open or refresh https://www.tradingview.com while signed in. The panel
    appears in the corner.
 
-To update an existing Tampermonkey copy, replace its script with the latest
-`tv-chat-panel.user.js`, save it, and refresh the TradingView tab.
+### Update an existing copy
+
+1. Open **Tampermonkey → Dashboard** and open your existing TV Chat Panel script.
+2. Replace its entire contents with the current
+   [tv-chat-panel.user.js](tv-chat-panel.user.js) (version 1.1), then press
+   **Ctrl+S**. Update the existing script rather than creating a second copy.
+3. Refresh the TradingView tab. Pushing a change to GitHub does not update a
+   script that you previously pasted into Tampermonkey.
+
+The older `tv-chat-revival` desktop folder contains an earlier script; use the
+file linked above for the current version.
 
 It works in a browser tab, not in the TradingView desktop app.
 
