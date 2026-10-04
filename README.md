@@ -80,8 +80,9 @@ saved only in your browser.
 3. Refresh the TradingView tab. Pushing a change to GitHub does not update a
    script that you previously pasted into Tampermonkey.
 
-The older `tv-chat-revival` desktop folder contains an earlier script; use the
-file linked above for the current version.
+The original `tv-chat-revival` desktop folder is the local working copy. It
+uses the original Tampermonkey script name and namespace; its panel features
+match this published GitHub version.
 
 It works in a browser tab, not in the TradingView desktop app.
 
