@@ -28,7 +28,10 @@ for as long as TradingView's chat servers keep answering.
   viewing; click to open it.
 - **⋮ menu** on each message: copy the text, or delete your own message.
 - **Jump to present** when you've scrolled back.
-- **Appearance (⚙):** text size, font and colours.
+- Select and copy text directly from the chat history. Clicking a name still
+  inserts an @mention when no text is selected.
+- **Appearance (⚙):** text size, font and colours; a short, wide panel preset
+  that shows roughly two messages; and optional username glow with intensity.
 - Drag the title bar to move it, drag the corner to resize it. It remembers
   its place, size and room.
 
@@ -49,6 +52,9 @@ saved only in your browser.
 4. Paste in the whole of `tv-chat-panel.user.js`, then press **Ctrl+S**.
 5. Open or refresh https://www.tradingview.com while signed in. The panel
    appears in the corner.
+
+To update an existing Tampermonkey copy, replace its script with the latest
+`tv-chat-panel.user.js`, save it, and refresh the TradingView tab.
 
 It works in a browser tab, not in the TradingView desktop app.
 

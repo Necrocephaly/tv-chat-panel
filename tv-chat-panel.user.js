@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TV Chat Panel (unofficial)
 // @namespace    tv-chat-panel
-// @version      1.0
+// @version      1.1
 // @description  An unofficial, minimal chat panel for TradingView's retired public chat rooms, using your own logged-in session. Not affiliated with TradingView.
 // @match        https://www.tradingview.com/*
 // @run-at       document-idle
@@ -69,7 +69,7 @@
   // ---- UI --------------------------------------------------------------------
   const css = `
     #tvcr{position:fixed;right:16px;bottom:16px;width:340px;height:460px;z-index:2147483647;box-sizing:border-box;
-      min-width:340px;min-height:460px;max-width:calc(100vw - 8px);max-height:calc(100vh - 8px);resize:both;overflow:hidden;
+      min-width:340px;min-height:170px;max-width:calc(100vw - 8px);max-height:calc(100vh - 8px);resize:both;overflow:hidden;
       display:flex;flex-direction:column;background:#131722;color:#d1d4dc;border:1px solid #2a2e39;
       border-radius:10px;font:13px/1.4 -apple-system,Segoe UI,Roboto,sans-serif;box-shadow:0 8px 30px rgba(0,0,0,.5)}
     #tvcr .hd{display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid #2a2e39;cursor:move;user-select:none}
@@ -78,6 +78,8 @@
     #tvcr .x{cursor:pointer;color:#787b86;padding:0 4px}
     #tvcr .logwrap{flex:1;min-height:0;position:relative;display:flex;flex-direction:column}
     #tvcr .log{flex:1;min-height:0;overflow-y:auto;padding:8px 10px}
+    #tvcr .log,#tvcr .log *{user-select:text!important;-webkit-user-select:text!important}
+    #tvcr .log ::selection{background:#4f79c7;color:#fff}
     #tvcr .jump{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);z-index:2;border:0;border-radius:14px;
       padding:4px 12px;font-size:12px;cursor:pointer;white-space:nowrap;box-shadow:0 4px 14px rgba(0,0,0,.5)}    #tvcr .m{margin:0 0 8px;display:flex;gap:8px;align-items:flex-start;border-radius:4px;position:relative}
     #tvcr .m.cont{margin-top:-6px}
@@ -156,6 +158,11 @@
       border-bottom:1px solid var(--tv-border,#2a2e39)}
     #tvcr-set input[type=color]{width:42px;height:24px;padding:0;border:0;background:none;cursor:pointer}
     #tvcr-set select{flex:0 1 150px}
+    #tvcr-set .size-actions{display:flex;gap:4px}
+    #tvcr-set .size-actions button{background:var(--tv-surface,#1c2030);color:var(--tv-text,#d1d4dc);
+      border:1px solid var(--tv-border,#2a2e39);border-radius:4px;padding:4px 6px;cursor:pointer;font:inherit;font-size:11px}
+    #tvcr-set .size-actions button:hover{border-color:var(--tv-btn,#2962ff)}
+    #tvcr-set input[type=range]:disabled{opacity:.4}
     #tvcr-set i{font-style:normal;opacity:.7;margin-left:6px}
     #tvcr-set button.s{margin-top:10px;width:100%}
     /* appearance settings (⚙): everything below reads the --tv-* values set from the panel */
@@ -172,6 +179,7 @@
     #tvcr .m.mod .u{color:#ff9800}
     #tvcr .m.ment{border-left-color:var(--tv-mention,#ff9800)}
     #tvcr .men.me{background:var(--tv-mention,#ff9800)}
+    #tvcr.glow-names .m .u{text-shadow:0 0 var(--tv-glow-near,6px) currentColor,0 0 var(--tv-glow-far,14px) currentColor}
     #tvcr .hd button.s.on{background:var(--tv-mention,#ff9800);color:#000}`;
   const style = document.createElement('style'); style.textContent = css; document.head.appendChild(style);
 
@@ -585,12 +593,22 @@
     el.style.left = Math.max(0, Math.min(x, innerWidth - 80)) + 'px';
     el.style.top = Math.max(0, Math.min(y, innerHeight - 40)) + 'px';
   }
-  // Stretch it from the bottom-right corner; it never goes below the size it
-  // starts at (min-width/min-height in the CSS) and remembers the new size.
+  // Stretch it from the bottom-right corner; the shorter minimum height also
+  // allows a two-message panel. Both manual and preset sizes are remembered.
   try {
     const s = JSON.parse(localStorage.getItem('tvcr.size'));
     if (s && s.w && s.h) { el.style.width = s.w + 'px'; el.style.height = s.h + 'px'; }
   } catch (err) { /* no saved size */ }
+  function setPanelSize(w, h) {
+    el.style.width = w + 'px';
+    el.style.height = h + 'px';
+    place(Math.min(el.offsetLeft, Math.max(0, innerWidth - el.offsetWidth - 8)),
+      Math.min(el.offsetTop, Math.max(0, innerHeight - el.offsetHeight - 8)));
+    try { localStorage.setItem('tvcr.size', JSON.stringify({ w: el.offsetWidth, h: el.offsetHeight })); }
+    catch (err) { /* storage blocked */ }
+    try { localStorage.setItem('tvcr.pos', JSON.stringify({ x: el.offsetLeft, y: el.offsetTop })); }
+    catch (err) { /* storage blocked */ }
+  }
   let savedPos = null;
   try { savedPos = JSON.parse(localStorage.getItem('tvcr.pos')); } catch (err) { /* no saved spot */ }
   if (savedPos) place(savedPos.x, savedPos.y);
@@ -730,6 +748,7 @@
   $('tvcr-log').addEventListener('click', e => {
     const u = e.target.closest('.u');
     if (!u) return;
+    if (window.getSelection() && !window.getSelection().isCollapsed) return;
     const name = u.closest('.m').dataset.user;
     if (name) insertAtCursor('@' + name + ' ');
   });
@@ -820,7 +839,8 @@
   };
   const THEME_DEFAULTS = {
     bg: '#131722', surface: '#1c2030', border: '#2a2e39', text: '#d1d4dc', btn: '#2962ff',
-    btnText: '#ffffff', me: '#26a69a', other: '#2962ff', mention: '#ff9800', font: 'system', size: 13
+    btnText: '#ffffff', me: '#26a69a', other: '#2962ff', mention: '#ff9800', font: 'system', size: 13,
+    glow: false, glowIntensity: 2
   };
   const COLOR_FIELDS = [
     ['bg', 'Background'], ['surface', 'Boxes and inputs'], ['border', 'Borders'], ['text', 'Text'],
@@ -833,6 +853,10 @@
     COLOR_FIELDS.forEach(([k]) => el.style.setProperty('--tv-' + k, theme[k]));
     el.style.setProperty('--tv-font', (FONTS[theme.font] || FONTS.system)[1]);
     el.style.setProperty('--tv-size', (+theme.size || 13) + 'px');
+    const glow = Math.max(1, Math.min(5, +theme.glowIntensity || 2));
+    el.style.setProperty('--tv-glow-near', (glow * 2) + 'px');
+    el.style.setProperty('--tv-glow-far', (glow * 4 + 2) + 'px');
+    el.classList.toggle('glow-names', theme.glow === true);
   }
   function saveTheme() { try { localStorage.setItem('tvcr.theme', JSON.stringify(theme)); } catch (err) { /* storage blocked */ } }
   applyTheme();
@@ -846,6 +870,14 @@
       '<label class="row"><span>Text size<i id="tvcr-sz">' + theme.size + 'px</i></span>' +
       '<input type="range" min="11" max="20" step="1" data-k="size" value="' + theme.size + '"></label>' +
       '<label class="row"><span>Font</span><select data-k="font">' + fonts + '</select></label>' +
+      '<div class="row"><span>Panel size</span><span class="size-actions">' +
+      '<button type="button" data-panel-size="compact" title="Short, wide panel showing about two messages">Two messages</button>' +
+      '<button type="button" data-panel-size="regular">Regular</button></span></div>' +
+      '<label class="row"><span>Username glow</span><input type="checkbox" data-k="glow"' +
+      (theme.glow ? ' checked' : '') + '></label>' +
+      '<label class="row"><span>Glow intensity<i id="tvcr-glow-level">' + theme.glowIntensity + '</i></span>' +
+      '<input type="range" min="1" max="5" step="1" data-k="glowIntensity" value="' +
+      theme.glowIntensity + '"' + (theme.glow ? '' : ' disabled') + '></label>' +
       COLOR_FIELDS.map(([k, label]) =>
         '<label class="row"><span>' + label + '</span><input type="color" data-k="' + k + '" value="' + theme[k] + '"></label>').join('') +
       '<button class="s" data-reset>Reset to default</button>';
@@ -853,13 +885,22 @@
   setEl.addEventListener('input', e => {
     const k = e.target.dataset.k;
     if (!k) return;
-    theme[k] = k === 'size' ? +e.target.value : e.target.value;
+    theme[k] = k === 'glow' ? e.target.checked :
+      (k === 'size' || k === 'glowIntensity' ? +e.target.value : e.target.value);
     if (k === 'size') $('tvcr-sz').textContent = theme.size + 'px';
+    if (k === 'glowIntensity') $('tvcr-glow-level').textContent = theme.glowIntensity;
+    if (k === 'glow') setEl.querySelector('[data-k="glowIntensity"]').disabled = !theme.glow;
     applyTheme();
     saveTheme();
   });
   setEl.addEventListener('click', e => {
     if (e.target.closest('[data-close]')) setEl.style.display = 'none';
+    else if (e.target.closest('[data-panel-size]')) {
+      const compact = e.target.closest('[data-panel-size]').dataset.panelSize === 'compact';
+      setPanelSize(compact ? 440 : 340, compact ? 180 : 460);
+      setEl.style.display = 'none';
+      updateJump();
+    }
     else if (e.target.closest('[data-reset]')) {
       theme = Object.assign({}, THEME_DEFAULTS);
       applyTheme(); saveTheme(); buildSettings();
