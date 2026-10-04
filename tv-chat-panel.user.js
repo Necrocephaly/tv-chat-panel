@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         TV Chat Panel (unofficial)
 // @namespace    tv-chat-panel
-// @version      1.1
+// @version      1.2
 // @description  An unofficial, minimal chat panel for TradingView's retired public chat rooms, using your own logged-in session. Not affiliated with TradingView.
 // @match        https://www.tradingview.com/*
 // @run-at       document-idle
@@ -89,7 +89,7 @@
     #tvcr .m.ment{background:#2a2410;border-left:3px solid #ff9800;padding-left:5px}
     #tvcr .av{display:block;width:28px;height:28px;border-radius:50%;flex:0 0 auto;background:#2a2e39;object-fit:cover}
     #tvcr .mc{flex:1;min-width:0}
-    #tvcr .mh{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
+    #tvcr .mh{display:flex;align-items:baseline;gap:4px;flex-wrap:wrap}
     #tvcr .mb{word-break:break-word}
     #tvcr .avl{flex:0 0 auto;display:block;line-height:0;border-radius:50%}
     #tvcr .avl:hover .av{outline:2px solid #2962ff}
@@ -132,8 +132,7 @@
     #tvcr .qw{font-size:11px;color:#787b86;font-weight:600}
     #tvcr .sy{margin-left:6px;padding:0 5px;border-radius:3px;background:#1c2030;border:1px solid #2a2e39;color:#9ea3b0;font-size:10px;text-decoration:none}
     #tvcr a.sy:hover{border-color:#2962ff;color:#fff}
-    #tvcr .qb{color:#787b86;cursor:pointer;margin-left:6px;font-size:11px;visibility:hidden}
-    #tvcr .m:hover .qb{visibility:visible}
+    #tvcr .qb{color:#787b86;cursor:pointer;font-size:14px;line-height:1;border:0;background:none;padding:0 2px}
     #tvcr .qb:hover{color:#fff}
     #tvcr .acts{position:absolute;top:-4px;right:2px;display:none;align-items:center;gap:8px;padding:1px 6px;
       background:#1c2030;border:1px solid #2a2e39;border-radius:4px;font-size:11px;color:#787b86}
@@ -396,16 +395,14 @@
     d.dataset.ts = String(ts);
     d._raw = raw;
     d._mine = mine && m.id != null;
-    // Header: name, then quote, then badges / chart / time. The hover bar on the
-    // right holds the ⋮ menu; on a follow-on message (header hidden) it also
-    // carries that message's time and its quote button.
+    // Keep badges beside the name. The hover bar always holds quote then ⋮;
+    // on a follow-on message (header hidden), it also carries the time.
     d.innerHTML = av + '<div class="mc"><div class="mh"><span class="u">' + esc(user) + '</span>' +
-      '<span class="qb" title="Quote this message">❝ quote</span>' +
       badgesHTML(m) + chartTag(m) +
       '<span class="tm" title="' + attr(tmTitle) + '">' + esc(tm) + '</span></div>' +
       '<div class="mb">' + renderKids(parseQuotes(raw), 0) + snapsHTML(m, stripQuotes(raw)) + '</div></div>' +
       '<div class="acts"><span class="tm ct" title="' + attr(tmTitle) + '">' + esc(tm) + '</span>' +
-      '<span class="qb ct" title="Quote this message">❝</span>' +
+      '<button type="button" class="qb" title="Quote this message" aria-label="Quote this message">❝</button>' +
       '<span class="dots" title="More">⋮</span></div>';
     // if a picture can't load, keep a plain link to the snapshot instead
     d.querySelectorAll('img.snapimg').forEach(i => i.addEventListener('error', () => i.parentNode.classList.add('broken')));

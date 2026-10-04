@@ -12,6 +12,11 @@ for as long as TradingView's chat servers keep answering.
 > working at any time, and TradingView may ask people not to use it. Use it at
 > your own risk.
 
+## Version 1.2 changes
+
+- The **quote** button is in each message's hover controls, directly left of
+  the **⋮** menu. Subscription badges now sit beside the username.
+
 ## Version 1.1 changes
 
 - **Select chat text:** drag across messages to highlight and copy the part you
@@ -29,7 +34,8 @@ for as long as TradingView's chat servers keep answering.
 
 - Lists the public rooms and shows the conversation, newest at the bottom.
 - Send messages with **Enter**; **Shift+Enter** starts a new line.
-- **Quotes:** hover a message and click *quote*. Quotes show as boxes.
+- **Quotes:** hover a message and click **❝** beside its **⋮** menu. Quotes
+  show as boxes.
 - **Emoji:** the smiley button inserts the old chat's `:codes:` (`:bull:`,
   `:rocket:`…), and `:)` style smileys show as faces.
 - **@mentions:** click a name to mention them. Mentions of you are
@@ -69,7 +75,7 @@ saved only in your browser.
 
 1. Open **Tampermonkey → Dashboard** and open your existing TV Chat Panel script.
 2. Replace its entire contents with the current
-   [tv-chat-panel.user.js](tv-chat-panel.user.js) (version 1.1), then press
+   [tv-chat-panel.user.js](tv-chat-panel.user.js) (version 1.2), then press
    **Ctrl+S**. Update the existing script rather than creating a second copy.
 3. Refresh the TradingView tab. Pushing a change to GitHub does not update a
    script that you previously pasted into Tampermonkey.
